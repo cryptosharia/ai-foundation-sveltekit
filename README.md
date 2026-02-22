@@ -1,6 +1,6 @@
-# CryptoSharia AI Foundation
+# CryptoSharia AI Foundation (SvelteKit)
 
-Shared OpenCode AI rules and skills for CryptoSharia projects.
+Shared OpenCode AI rules and skills for CryptoSharia SvelteKit projects.
 
 ## What this repo is
 
@@ -15,18 +15,18 @@ Example:
 
 ```json
 {
-	"installMethod": "copy",
-	"repositories": [
-		{
-			"url": "https://github.com/cryptosharia/ai-foundation-sveltekit.git",
-			"ref": "main",
-			"instructions": "*",
-			"skills": "*",
-			"agents": "*",
-			"commands": "*",
-			"plugins": "*"
-		}
-	]
+  "installMethod": "copy",
+  "repositories": [
+    {
+      "url": "https://github.com/cryptosharia/ai-foundation-sveltekit.git",
+      "ref": "main",
+      "instructions": "*",
+      "skills": "*",
+      "agents": "*",
+      "commands": "*",
+      "plugins": "*"
+    }
+  ]
 }
 ```
 
