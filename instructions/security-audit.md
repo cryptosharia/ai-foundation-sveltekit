@@ -23,6 +23,13 @@ Run this checklist before finalizing work that touches auth/session, BFF routes,
 - Status semantics are consistent (`401` unauthenticated, `403` forbidden).
 - Session-sensitive operations use defensive defaults (`no-store`, minimal exposure).
 
+### SvelteKit-specific checks
+
+- CSRF/origin protections are not weakened (for example keep `kit.csrf.checkOrigin` enabled unless there is a documented rationale + compensating controls).
+- State-changing endpoints/actions reject cross-site requests (validate `Origin`/`Host` as appropriate) and do not perform writes on `GET`.
+- Redirects are safe: do not redirect to user-provided absolute URLs; validate `returnTo/next` against an allowlist or enforce same-origin relative paths.
+- Cookies/session flags are explicit where applicable (`HttpOnly`, `Secure`, `SameSite`) and session tokens are never serialized into load data or URLs.
+
 ## 4) Input and Write Safety
 
 - Untrusted input is validated before use.

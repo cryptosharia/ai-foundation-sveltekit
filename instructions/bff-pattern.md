@@ -33,7 +33,14 @@ Privileged upstream calls are allowed only in:
 - `src/routes/**/+server.ts`
 - `src/routes/**/+page.server.ts`
 - `src/routes/**/+layout.server.ts`
+- `src/hooks.server.ts`
+- `src/lib/server/**`
+- `src/lib/**/*.server.ts`
 - `src/lib/**/*.remote.ts`
+
+Notes:
+
+- Any module that can be imported by browser-visible code must be treated as browser-visible. Keep secrets and protected upstream calls in server-only modules/paths (for example `src/lib/server/**` or `*.server.ts`).
 
 ## 4) Browser-Visible Surfaces
 
