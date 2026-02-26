@@ -1,49 +1,62 @@
 ---
 name: cryptosharia-api-integration
-description: Standard way to integrate SvelteKit frontend with the CryptoSharia API (typegen + client + BFF-safe placement)
+description: Standard way to integrate SvelteKit apps with CryptoSharia API (typegen + client + BFF-safe placement)
 ---
 
 # CryptoSharia API Integration
 
 ## When to use
 
-Use this skill when you need to call the CryptoSharia API from a SvelteKit app.
+Use this skill when implementing or updating API calls from CryptoSharia SvelteKit apps.
 
-## Assumptions
+## Source of truth
 
-- Secrets stay server-only (follow the BFF pattern rules).
+- `<ai-rules>/bff-pattern.md`
+- `<ai-rules>/security-audit.md`
+
+## Local references
+
+- `references/examples.md`
 
 ## Prerequisites
 
-- Env vars:
-  - `PUBLIC_CS_API_URL`
-  - `CS_API_KEY` (server-only)
+- Required environment variables are configured in server/client scopes correctly.
+- Protected API keys/secrets remain server-only.
 
 ## Workflow
 
-1. Generate contract-first types (source of truth)
+1. Generate API contract types
 
 ```sh
 npm run gen:api-types:preview
 npm run gen:api-types:prod
 ```
 
-Expected output file: `src/lib/api/cs-api-types.ts`
+Expected output: app-local generated API types file.
 
-2. Use the shared client factories
+2. Choose correct SvelteKit surface
 
-- Public upstream calls (no API key): `createCsApiClient(fetch?)` from `src/lib/api/cs-api.ts`
-- Protected upstream calls (server-only): `createServerCsApiClient(fetch?)` from `src/lib/api/cs-api.server.ts`
+- Browser-visible surfaces: public endpoints only (no protected headers/secrets).
+- Server-only surfaces: protected endpoints allowed.
 
-3. Choose the right SvelteKit surface
+3. Use shared client factories/helpers
 
-- `.svelte`, `+page.ts`, `+layout.ts`: public endpoints only; never attach `Api-Key`
-- `+server.ts`, `+page.server.ts`, `+layout.server.ts`, form actions, `.remote.ts`: protected endpoints allowed
+- Use public client for public upstream calls.
+- Use server client for protected upstream calls.
 
-## Error handling
+4. Keep BFF contract clean
 
-- Map upstream failures to UI-safe errors; do not forward sensitive upstream error bodies.
+- Return UI-safe, minimal payloads.
+- Map/sanitize upstream errors before returning to UI.
+- Set explicit cache policy (`no-store` for sensitive/user-specific responses).
 
-## Examples
+5. Verify
 
-See: [Examples](./references/examples.md)
+- Run check/lint/test project gates.
+
+## Done definition
+
+- No secrets leaked into browser-visible surfaces.
+- Placement follows BFF pattern boundaries.
+- Error/caching behavior is explicit and safe.
+- Verification gates pass (or blockers are reported clearly).

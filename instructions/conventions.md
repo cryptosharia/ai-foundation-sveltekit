@@ -1,94 +1,59 @@
 # Coding Conventions
 
+These conventions apply across CryptoSharia SvelteKit app repositories unless project-local rules override them.
+
 ## TypeScript
 
-- Strict mode enabled in `tsconfig.json`
-- Always use proper TypeScript types; avoid `any`
-- `checkJs: true` means JavaScript files also need type annotations
-- Use `typescript-eslint` for TypeScript-specific linting
-- Always use `type` instead of `interface` for type definitions
+- Prefer strict TypeScript settings.
+- Avoid `any`; use `unknown` with narrowing for untrusted inputs.
+- Prefer `type` over `interface` for most app-level type definitions.
+- Keep runtime validation explicit at boundaries (forms, route handlers, upstream responses).
 
-## Prettier
+## Svelte and SvelteKit
 
-- Use tabs for indentation
-- Single quotes for strings
-- No trailing commas
-- 100 character line width
-- Svelte parser for `.svelte` files
-- TailwindCSS plugin enabled
+- Keep privileged logic in server-only surfaces (`+server.ts`, `+page.server.ts`, `+layout.server.ts`, actions, `.remote.ts`).
+- Keep browser-visible logic free from secrets and protected upstream access.
+- Use small, composable components and avoid large mixed-responsibility files.
+- Keep load/action/route handler logic explicit and readable.
 
-## ESLint
+## Formatting and Linting
 
-- Follows Svelte + TypeScript recommended rules
-- Prettier integration for formatting conflicts
-- `no-undef` rule is disabled (handled by TypeScript)
+- Follow each repository's Prettier and ESLint configuration as source of truth.
+- Do not hardcode style assumptions when local project config differs.
+- Resolve lint/type issues instead of suppressing them unless there is clear justification.
 
 ## Import Conventions
 
-### Aliases
-
-- Use `$lib` alias for internal library imports
-- Example: `import { something } from '$lib'`
-
-### Import Ordering
-
-Group imports in this order:
-
-1. External libraries (e.g., `import { format } from 'date-fns'`)
-2. `$lib` imports (e.g., `import { util } from '$lib'`)
-3. Relative imports (e.g., `import Component from './Component.svelte'`)
+- Prefer `$lib` aliases for internal imports where configured.
+- Import ordering (default):
+  1. External packages
+  2. Internal aliases (`$lib`, app-local aliases)
+  3. Relative imports
 
 ## Naming Conventions
 
 | Type                   | Convention       | Example                     |
 | ---------------------- | ---------------- | --------------------------- |
-| Components             | PascalCase       | `TodoList.svelte`           |
-| Functions/variables    | camelCase        | `handleSubmit`, `isValid`   |
-| Constants              | UPPER_SNAKE_CASE | `MAX_ITEMS`                 |
-| Files (non-components) | kebab-case       | `utils.ts`, `api-client.ts` |
-| Types                  | PascalCase       | `TodoItem`, `UserResponse`  |
+| Components             | PascalCase       | `UserCard.svelte`           |
+| Functions/variables    | camelCase        | `handleSubmit`, `isLoading` |
+| Constants              | UPPER_SNAKE_CASE | `MAX_RETRIES`               |
+| Files (non-components) | kebab-case       | `api-client.ts`             |
+| Types                  | PascalCase       | `UserProfileResponse`       |
 
 ## Error Handling
 
-- Use `try/catch` for async operations
-- Let errors bubble up to error boundaries when appropriate
-- Provide meaningful error messages
+- Handle async operations explicitly (`try/catch` where appropriate).
+- Return UI-safe error shapes from BFF endpoints.
+- Do not leak internal stack traces or provider internals.
 
-## CSS / TailwindCSS
+## Styling
 
-- Use TailwindCSS utility classes when possible for rapid prototyping
-- Keep component-specific styles in `<style>` blocks for scoped styles
-- Follow TailwindCSS v4 conventions
-- Custom styles can be added in `src/routes/layout.css`
-
-### Fluid TailwindCSS (`fluid-tailwindcss`)
-
-- Prefer `fl-*` utilities for values that should scale smoothly across viewport widths (e.g. headings, hero padding, section spacing, etc)
-- Prefer breakpoint variants (`sm:`, `md:`, `lg:`, etc) for layout changes and discrete jumps (grid/columns, visibility, nav behavior, etc)
-- Avoid mixing conflicting fluid and breakpoint utilities on the same property unless intentional (e.g. `fl-text-2xl/5xl` plus `md:text-4xl`)
-
-Examples:
-
-```html
-<h1 class="fl-leading-tight/none fl-text-3xl/6xl">Title</h1>
-<section class="fl-py-8/16 fl-px-4/10">...</section>
-```
-
-## Project Structure
-
-```
-src/
-├── lib/              # Shared library code ($lib alias)
-│   └── index.ts     # Barrel exports for lib
-├── routes/           # SvelteKit pages and layouts
-│   ├── +page.svelte  # Route page
-│   └── +layout.svelte # Layout wrapper
-├── app.d.ts          # TypeScript declarations
-└── app.html          # HTML template
-```
+- Follow the app's existing design system and styling approach.
+- Prefer consistency with local project patterns over introducing new style systems.
+- If Tailwind is used, keep utility usage intentional and readable.
 
 ## Testing
 
-- Use Vitest for unit testing
-- Test files should be named `*.test.ts`
-- Place tests alongside the code they test
+- Prefer Vitest for unit/integration testing where available.
+- Name tests consistently (`*.test.ts` or project-local standard).
+- Add tests for behavior changes, especially auth/security/BFF boundary changes.

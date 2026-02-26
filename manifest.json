@@ -1,13 +1,12 @@
 {
-	"$schema": "https://raw.githubusercontent.com/jgordijn/opencode-remote-config/main/manifest.schema.json",
-	"instructions": [
-		"instructions/entrypoint.md",
-		"instructions/cryptosharia-context.md",
-		"instructions/security-audit.md",
-		"instructions/commands.md",
-		"instructions/bff-pattern.md",
-		"instructions/conventions.md",
-		"instructions/planning.md",
-		"instructions/mcp-svelte.md"
-	]
+  "$schema": "https://raw.githubusercontent.com/jgordijn/opencode-remote-config/main/manifest.schema.json",
+  "instructions": [
+    "instructions/entrypoint.md",
+    "instructions/cryptosharia-context.md",
+    "instructions/security-audit.md",
+    "instructions/bff-pattern.md",
+    "instructions/conventions.md",
+    "instructions/planning.md",
+    "instructions/mcp-svelte.md"
+  ]
 }

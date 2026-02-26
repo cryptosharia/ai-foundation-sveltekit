@@ -1,32 +1,55 @@
-# CryptoSharia Project AI Rules (Entrypoint)
+# CryptoSharia SvelteKit AI Rules
 
-These rules apply to the CryptoSharia project repository you are working in.
+This is the rule entrypoint for CryptoSharia SvelteKit app repositories.
 
-Additional authoritative rule modules may be loaded via your project's OpenCode config `instructions` setting.
+## Rule Priority
 
-## Precedence
+1. User instructions
+2. Project-local rules in the current repository
+3. `<ai-rules>/entrypoint.md`
+4. Other files in `<ai-rules>/`
+5. Default assistant behavior
 
-- Project rules (in the repo you are working in) override any global/personal rules when they conflict.
-- If modular rule files conflict with this entrypoint, this entrypoint file wins.
+## Core Operating Model
 
-## Non-Negotiable Rules
+- Default flow: inspect -> decide -> implement -> verify -> report.
+- Do not ask for confirmation for low-risk tasks.
+- Ask only for destructive actions, unclear high-impact contract/security changes, or missing secrets/credentials.
+- For scoped features/refactors that need planning artifacts, follow `<ai-rules>/planning.md`.
 
-- NEVER execute a plan or implement changes without explicit user approval ("yes", "go ahead", "proceed", etc.).
-- Do not relax security/safety constraints without explicit user instruction.
+## AI Rules (Canonical Modules) vs AI Skills (Playbooks)
 
-## Collaboration Protocol
+- Treat `<ai-rules>/*` as AI Rules (Canonical Modules): policy, gates, invariants, and shared context.
+- Treat `<ai-skills>/*` as AI Skills (Playbooks) for task execution.
+- AI Skills (Playbooks) may reference AI Rules (Canonical Modules) and include local `references/` for workflow-specific detail.
+- Keep shared checklists and non-negotiables in AI Rules (Canonical Modules) to avoid drift.
 
-- Handshake protocol: research/plan -> propose -> wait for explicit approval -> execute.
-- No hero assumptions: never run extra commands or follow-up changes unless explicitly approved.
-- Security-first: for changes involving auth, secrets, caching, or data exposure, call out security impact.
+## Governance Updates
 
-## Communication
+- Apply user feedback immediately for the current session.
+- If a governance change would be reasonable and durable, propose a persistent update to `<ai-rules>/*` or `<ai-skills>/*`.
+- Do not edit governance files silently; require explicit user confirmation (for example: `codify`) before persistent updates.
+- Codify only stable, cross-project preferences; keep one-off preferences session-scoped.
 
-- Be concise by default.
-- Prefer CryptoSharia-relevant examples when possible.
+## Non-Negotiables
 
-## Response Style and Token Efficiency
+- Security > speed.
+- Do not expose secrets in browser-visible code or `PUBLIC_` environment variables.
+- Keep privileged upstream calls in server-only SvelteKit surfaces (BFF pattern).
+- Do not weaken auth, authorization, trust-boundary, or data exposure protections.
+- Do not change public contracts silently.
 
-- Default to short, direct answers that address only the user's explicit question.
-- Avoid unsolicited tangents, broad comparisons, or extra options unless requested.
-- Expand only when the user explicitly asks (e.g., "expand", "deep dive", "more details", etc).
+## Required Verification
+
+- Run project verification commands (`check`, `lint`, `test`) for non-trivial changes.
+- Keep BFF runtime behavior aligned with documented contracts.
+- If checks cannot run, report exactly what is blocked and what to run manually.
+
+## AI Rule Modules
+
+- `<ai-rules>/cryptosharia-context.md` - business, product, and ecosystem context.
+- `<ai-rules>/security-audit.md` - security checklist before finalization.
+- `<ai-rules>/bff-pattern.md` - BFF boundaries, secret handling, and response/caching rules.
+- `<ai-rules>/conventions.md` - TypeScript/Svelte/SvelteKit coding conventions.
+- `<ai-rules>/planning.md` - planning policy, approval gate, and escalation rules.
+- `<ai-rules>/mcp-svelte.md` - Svelte MCP usage and Svelte 5 conventions.

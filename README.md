@@ -49,7 +49,7 @@ opencode
 /skills
 ```
 
-Expected: you see `cryptosharia-api-integration` (and any other skills).
+Expected: you see `cryptosharia-api-integration`, `cryptosharia-planning-pack`, `cryptosharia-security-audit` (and any other skills).
 
 3. Ask the assistant something like:
 
@@ -92,6 +92,7 @@ These internal rules are for maintaining the foundation repo and are not intende
 
 - Skills live under `skill/<skill-name>/SKILL.md`.
 - Any references should be within the same skill folder (e.g. `references/`).
+- Skill catalog and usage chains live in `skill/README.md`.
 
 ## Change management
 

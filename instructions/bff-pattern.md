@@ -1,72 +1,65 @@
-# BFF Pattern Rules
+# BFF Pattern Invariants
 
-These rules codify the Backend-for-Frontend (BFF) pattern.
+These are stable architecture rules for CryptoSharia SvelteKit apps using Backend-for-Frontend (BFF) boundaries.
 
-## Decision Rubric
+## 1) Decision Rubric
 
-- SHOULD call an upstream service directly from the browser only when ALL are true:
-  - the upstream endpoint is public (no API keys, no session cookies, no OAuth tokens)
-  - the data is non-sensitive
-  - the upstream contract is already suitable for the UI (no reshaping/aggregation needed)
-  - CORS, rate limits, and performance are acceptable
-- MUST use a BFF layer when ANY are true:
-  - a secret is required (API key, client secret, service token)
-  - authentication/authorization is required
-  - the data is sensitive (PII, financial, internal identifiers, privileged metadata)
-  - the UI needs aggregation, normalization, filtering, sorting, or pagination policy
-  - you need consistent error mapping, caching rules, or rate-limit shielding
+Use direct browser-to-upstream calls only when all are true:
 
-## Secret Handling
+- Upstream endpoint is fully public (no secrets/session/auth required).
+- Data is non-sensitive.
+- Contract already fits UI needs without transformation.
+- CORS, rate limits, and performance are acceptable.
 
-- NEVER read secrets in browser code.
-- NEVER read secrets in universal modules that can execute on the client (e.g. `+page.ts`, `+layout.ts`, shared `$lib` used by components).
-- MUST read secrets only in server-only modules. SvelteKit server-only surfaces include:
-  - API routes (`src/routes/**/+server.ts`)
-  - Server load functions (`src/routes/**/+page.server.ts`, `src/routes/**/+layout.server.ts`)
-  - Form actions (`export const actions` in `src/routes/**/+page.server.ts`)
-  - Remote functions (`src/lib/**/*.remote.ts`)
-- MUST source secrets from `$env/static/private` (or `$env/dynamic/private` when truly needed).
-- Config values like upstream base URLs are often safe to expose as public env (e.g. `PUBLIC_UPSTREAM_BASE_URL` via `$env/static/public`), but keep them private if they reveal internal topology or are only reachable from the server.
-- MUST NOT pass secrets to the client (no response bodies, no headers, no serialized load data).
+Use BFF boundary when any are true:
 
-## Boundary and Contract Rules
+- A secret is required (`Api-Key`, service token, client secret).
+- Auth/authorization/ownership checks are required.
+- Data is sensitive (PII, internal identifiers, privileged metadata).
+- UI needs normalization, aggregation, filtering, or policy-driven pagination.
+- Consistent error mapping/caching/rate-limit shielding is needed.
 
-- BFF endpoints MUST expose a frontend-shaped contract:
-  - stable response shape and naming
-  - minimal fields needed by the UI
-  - no accidental passthrough of upstream internals
-- SHOULD normalize/validate upstream data before returning it to the UI.
-- MUST keep upstream-specific details behind the boundary (header names, error schemas, pagination quirks, field names).
-- SHOULD define explicit TypeScript types for the BFF response payloads (these types belong to the BFF contract, not the upstream).
+## 2) Secret Handling
 
-## SvelteKit Placement Rules
+- Never read secrets in browser-visible code.
+- Never read secrets in universal modules that can execute client-side.
+- Read secrets only in server-only surfaces/modules.
+- Never pass secrets to client responses, serialized load data, or client headers.
 
-- Privileged upstream calls MUST happen server-side:
-  - BFF API routes (`src/routes/**/+server.ts`)
-  - Server load functions (`src/routes/**/+page.server.ts`, `src/routes/**/+layout.server.ts`)
-  - Form actions (`export const actions` in `src/routes/**/+page.server.ts`)
-  - Remote functions (`src/lib/**/*.remote.ts`)
-- Browser-visible surfaces MUST call the BFF (not privileged upstreams):
-  - Components (`src/**/*.svelte`)
-  - Universal load functions (`src/routes/**/+page.ts`, `src/routes/**/+layout.ts`)
-- SHOULD use SvelteKit-provided `fetch` inside server contexts.
-  - Reason: consistent cookies/credentials behavior in SSR and ability to call internal routes efficiently.
+## 3) Server-Only Surfaces
 
-## Error Handling Rules
+Privileged upstream calls are allowed only in:
 
-- BFF MUST map upstream failures to UI-safe errors:
-  - return an appropriate HTTP status code
-  - return a minimal error payload intended for the UI (message + optional error code)
-- MUST NOT forward upstream error bodies verbatim if they might include sensitive details.
-- SHOULD keep error shapes consistent across BFF routes.
+- `src/routes/**/+server.ts`
+- `src/routes/**/+page.server.ts`
+- `src/routes/**/+layout.server.ts`
+- `src/lib/**/*.remote.ts`
 
-## Caching Rules
+## 4) Browser-Visible Surfaces
 
-- Sensitive or authenticated responses MUST set `cache-control: no-store`.
-- Non-sensitive responses MUST set an explicit cache policy (avoid relying on implicit defaults).
-- If returning user-specific content, MUST ensure shared caches cannot store it.
+Browser-visible code must call internal BFF endpoints for protected data:
 
-## Observability Rules
+- `src/**/*.svelte`
+- `src/routes/**/+page.ts`
+- `src/routes/**/+layout.ts`
 
-- SHOULD include a correlation/request ID in server logs and pass it to upstream services when possible.
-- MUST NOT log secrets.
+No protected upstream calls or secret-bearing headers in these surfaces.
+
+## 5) Contract and Response Discipline
+
+- BFF responses are UI-shaped, minimal, and stable.
+- Upstream quirks stay behind the BFF boundary.
+- Validate/normalize upstream responses before returning to UI.
+- Error responses are UI-safe and consistent.
+
+## 6) Auth and Error Semantics
+
+- Use explicit auth/ownership checks when required.
+- Keep status semantics consistent (`401` unauthenticated, `403` forbidden).
+- Do not forward raw upstream error bodies if they may leak internal details.
+
+## 7) Caching and Observability
+
+- Sensitive/authenticated responses use `cache-control: no-store`.
+- Non-sensitive responses use explicit cache policy.
+- Logs should include useful correlation data without secrets/PII leakage.

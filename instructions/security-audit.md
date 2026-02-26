@@ -1,35 +1,56 @@
 # Security Audit Checklist
 
-Use this checklist before committing or merging changes.
+Run this checklist before finalizing work that touches auth/session, BFF routes, upstream integrations, user data, DB writes, caching, or API responses.
 
-## Secrets And Env
+## 1) Secrets and Environment Safety
 
-- No secrets in browser-visible code (`.svelte`, `+page.ts`, `+layout.ts`).
-- No secrets in `PUBLIC_` env vars.
-- No secrets committed (`.env`, credentials, tokens).
+- No secrets in committed files (`.env`, credential files, token dumps).
+- No secrets in browser-visible code (`.svelte`, `+page.ts`, `+layout.ts`, client `$lib` modules).
+- No secrets in `PUBLIC_` environment variables.
+- Server-only secrets are read only from server-only surfaces/modules.
 
-## Auth And Authorization
+## 2) BFF Boundary and Privileged Calls
 
-- Private routes enforce authentication.
-- Authorization checks are explicit (role/permission) where required.
-- Ownership checks exist for user-owned resources.
+- Privileged upstream calls happen only in server-only SvelteKit surfaces.
+- Browser-visible surfaces call internal BFF endpoints for protected data.
+- `Api-Key` or equivalent secrets are never attached in browser-visible requests.
+- Upstream provider quirks stay behind BFF boundaries (headers, error shapes, field quirks).
 
-## Data Exposure
+## 3) Auth and Authorization
 
-- Responses do not leak sensitive fields (password hashes, internal tokens, privileged metadata).
-- Do not forward upstream error bodies verbatim if they may contain sensitive details.
+- Authentication checks are explicit on protected routes/actions.
+- Authorization and ownership checks are explicit where required.
+- Status semantics are consistent (`401` unauthenticated, `403` forbidden).
+- Session-sensitive operations use defensive defaults (`no-store`, minimal exposure).
 
-## Caching
+## 4) Input and Write Safety
 
-- User-specific or sensitive responses set `cache-control: no-store`.
-- Non-sensitive responses have an explicit cache policy.
+- Untrusted input is validated before use.
+- No mass assignment from request payloads into writes.
+- Allowed fields are explicitly picked for create/update.
+- SQL/ORM access uses parameterized APIs (no raw unsafe string SQL).
 
-## Logging
+## 5) Data Exposure and Error Handling
 
-- Do not log secrets.
-- Avoid logging PII; if needed, minimize and redact.
+- Responses do not expose sensitive fields (hashes, refresh tokens, private metadata).
+- Upstream error bodies are sanitized before returning to clients.
+- Internal exception details are not leaked to users.
+- Response payloads are intentionally shaped for UI needs.
 
-## Type Safety
+## 6) Caching and Logging
 
-- Avoid `any`.
-- Prefer `unknown` + narrowing for untrusted inputs.
+- Sensitive/user-specific responses set `cache-control: no-store`.
+- Non-sensitive responses have explicit cache policy.
+- Logs avoid secrets and unnecessary PII.
+- If correlation IDs are used, they do not carry sensitive payload content.
+
+## 7) Type Safety and Verification
+
+- Avoid `any` for untrusted inputs; use `unknown` with narrowing.
+- Add regression tests for security-sensitive fixes.
+- Final gates: `npm run check`, `npm run lint`, `npm test` (or project-equivalent scripts).
+
+## Audit Report Format
+
+- Findings: `<none>` or bullet list with `path`, `risk`, and `fix`.
+- Residual risk: explicit statement if anything is intentionally deferred.
