@@ -75,6 +75,12 @@ command/      (optional)
 plugin/       (optional)
 ```
 
+## Working on This Repo
+
+When working inside `ai-foundation-sveltekit` itself, OpenCode also loads internal repo-only instructions from `.agents/rules/*.md` (configured in `opencode.json`).
+
+These internal rules are for maintaining the foundation repo and are not intended to be exported to consuming app repos.
+
 ## Instructions
 
 - `manifest.json` lists instruction markdown files that should be imported.

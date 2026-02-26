@@ -4,6 +4,15 @@ This file applies when working inside the `cryptosharia/ai-foundation` repositor
 
 This repository is the shared OpenCode AI foundation used by multiple CryptoSharia projects.
 
+## Repo AI Instructions (Internal)
+
+When working in this repo itself, OpenCode loads internal instructions from:
+
+- `.agents/rules/*.md` (configured in `opencode.json`)
+
+These internal rules are for maintaining the foundation repo (planning, CryptoSharia context, governance).
+They are not intended to be exported to consuming app repos.
+
 ## Non-Negotiable
 
 - Treat changes here as production-impacting (they affect assistant behavior across many repos).
